@@ -1,0 +1,586 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { siteConfig, getServiceBySlug } from '../../config.js';
+import { processContent } from '../../utils/content.js';
+
+// Generate static paths for all services
+export function getStaticPaths() {
+  return siteConfig.services.map(service => ({
+    params: { slug: service.slug },
+    props: { service },
+  }));
+}
+
+const { slug } = Astro.params;
+const { service } = Astro.props;
+
+// Load all service content files at build time (Vite-compatible)
+const contentModules = import.meta.glob('../../content/services/*.js', { eager: true });
+
+// Get content for this specific service
+const contentPath = `../../content/services/${slug}.js`;
+let rawContent;
+
+if (contentModules[contentPath]) {
+  const module = contentModules[contentPath];
+  rawContent = module.default || Object.values(module)[0];
+} else {
+  // Fallback if no content file exists for this service
+  const { businessName, phone, location } = siteConfig;
+  const { city, stateAbbr, region } = location;
+  rawContent = {
+    seo: {
+      title: `${service.name} Installation & Repair | ${businessName}`,
+      description: `Professional ${service.name.toLowerCase()} installation in ${city}, ${stateAbbr}. Call ${phone.display} for a free estimate.`,
+    },
+    hero: {
+      heading: `${service.name} in ${city} ${stateAbbr}`,
+      subtitle: `Professional ${service.name.toLowerCase()} installation and repair`,
+      ctaText: "Get a Free Quote:",
+    },
+    intro: {
+      formHeading: `Get Your Free ${service.name} Quote`,
+      content: `Professional ${service.name.toLowerCase()} services in ${city}, ${stateAbbr}. Contact us for a free estimate.`,
+    },
+    sections: [
+      {
+        heading: `What is a ${service.name}?`,
+        content: `${service.name} is a popular fencing option for properties in ${city} and throughout ${region}. Contact us to learn more about how this fencing type can work for your property.`,
+      },
+      {
+        heading: `What Sets Our ${service.name} Service Apart`,
+        content: `We build every ${service.name.toLowerCase()} to handle the specific conditions in ${region}. Our installations use quality materials and proven construction techniques.`,
+      },
+      {
+        heading: `Why Choose Us for Your ${service.name}?`,
+        content: `${businessName} serves homeowners and businesses throughout ${location.county}. We provide honest estimates, professional installation, and stand behind our work.`,
+      },
+    ],
+    gallery: { heading: `Our ${service.name} Work` },
+    process: {
+      heading: `Our ${service.name} Process`,
+      intro: `At ${businessName}, we keep the process straightforward.`,
+      steps: [
+        { heading: "1. Free Consultation", content: "We visit your property to assess the layout and discuss your goals." },
+        { heading: "2. Detailed Estimate", content: "You receive a clear written estimate with no hidden fees." },
+        { heading: "3. Site Preparation", content: "We handle permitting and prepare the site for installation." },
+        { heading: "4. Professional Installation", content: "Our crew installs your fence with attention to every detail." },
+      ],
+    },
+    cta: {
+      heading: "Ready to Get Started?",
+      content: `Call us today to schedule your free consultation for ${service.name.toLowerCase()}.`,
+      ctaText: "Call Now:",
+    },
+    closing: `Contact ${businessName} today to discuss your ${service.name.toLowerCase()} project.`,
+  };
+}
+
+const content = processContent(rawContent);
+
+const { businessName, phone, location, images, forms, testimonials, colors } = siteConfig;
+const { city, stateAbbr } = location;
+const overlayColor = colors.overlay;
+
+// Get service gallery images
+const galleryImages = images.serviceGalleries[slug] || [];
+const heroImage = images.serviceCards[slug] || images.heroMain;
+---
+
+<BaseLayout 
+  title={content.seo.title}
+  description={content.seo.description}
+>
+
+  <!-- HERO SECTION -->
+  <section style={`
+    background-image: linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 100%), url('${heroImage}');
+    background-size: cover;
+    background-position: center;
+    padding: 5rem 2rem;
+    color: white;
+    text-align: center;
+  `}>
+    <div class="container">
+      <span class="section-label" style="color: var(--accent);">{service.name.toUpperCase()}</span>
+      <h1 style="font-size: 2.75rem; margin-bottom: 1rem;">{content.hero.heading}</h1>
+      <p style="font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto 2rem;">{content.hero.subtitle}</p>
+      <a href={phone.tel} class="btn" style="background: #FFD700; color: #1a1a1a;">{content.hero.ctaText} {phone.display}</a>
+    </div>
+  </section>
+
+  <!-- INTRO SECTION WITH FORM -->
+  <section class="section">
+    <div class="container">
+      <div class="service-intro-grid">
+        
+        <!-- LEFT: Content -->
+        <div class="service-intro-content">
+          <span class="section-label">OVERVIEW</span>
+          <h2>{service.name} in {city}, {stateAbbr}</h2>
+          <p style="line-height: 1.8; color: #444; margin-bottom: 1.5rem;">{content.intro.content}</p>
+          
+          {content.sections[0] && (
+            <>
+              <h3 style="color: var(--primary); margin-bottom: 0.75rem;">{content.sections[0].heading}</h3>
+              <p style="line-height: 1.8; color: #444;">{content.sections[0].content}</p>
+            </>
+          )}
+          
+          <!-- Trust Badges -->
+          <div class="service-badges">
+            {images.badges.licensed && <img src={images.badges.licensed} alt="Licensed & Insured" style="height: 45px;">}
+            {images.badges.award && <img src={images.badges.award} alt="Award Winning" style="height: 55px;">}
+          </div>
+        </div>
+        
+        <!-- RIGHT: Form -->
+        <div class="service-form-wrapper">
+          <span class="section-label">FREE ESTIMATE</span>
+          <h3>{content.intro.formHeading}</h3>
+          <p class="form-urgency">Limited Slots Available This Month!</p>
+          
+          <form class="service-form" action={forms.action} method="POST">
+            <input type="hidden" name="site_name" value={businessName}>
+            <input type="hidden" name="client_email" value={forms.clientEmail}>
+            <input type="hidden" name="service_interest" value={service.name}>
+            
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email Address" required>
+            <input type="tel" name="phone" placeholder="Phone Number" required>
+            <select name="service" required>
+              <option value="">Service Needed</option>
+              {forms.serviceOptions.map(option => (
+                <option value={option.value} selected={option.value === slug}>{option.label}</option>
+              ))}
+            </select>
+            <textarea name="message" placeholder="Tell us about your project..." rows="3"></textarea>
+            <button type="submit" class="btn" style="background: var(--primary); width: 100%;">Get My Free Quote</button>
+          </form>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- ADDITIONAL CONTENT SECTIONS -->
+  {content.sections.length > 1 && (
+    <section class="section" style="background: #f8f8f8;">
+      <div class="container">
+        <div class="content-two-col">
+          {content.sections.slice(1).map((section, index) => (
+            <div class="content-block">
+              <span class="content-number">{String(index + 1).padStart(2, '0')}</span>
+              <h3>{section.heading}</h3>
+              <p>{section.content}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- IMAGE GALLERY -->
+  {galleryImages.length > 0 && (
+    <section class="section" style={`
+      background-image: linear-gradient(rgba(${overlayColor}, 0.92), rgba(${overlayColor}, 0.92)), url('${images.backgrounds.metal}');
+      background-size: cover;
+      background-position: center;
+    `}>
+      <div class="container">
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <span class="section-label" style="color: var(--accent);">OUR WORK</span>
+          <h2 class="section-title" style="color: white;">{content.gallery.heading}</h2>
+        </div>
+        <div class={`gallery-grid gallery-${galleryImages.length}`}>
+          {galleryImages.map((img, i) => (
+            <img src={img} alt={`${service.name} in ${city}, ${stateAbbr} - Image ${i + 1}`}>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- SIGNS YOU NEED SECTION -->
+  {content.signsYouNeed && (
+    <section class="section">
+      <div class="container">
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <span class="section-label">SIGNS TO WATCH</span>
+          <h2 class="section-title">{content.signsYouNeed.heading}</h2>
+          <p style="max-width: 700px; margin: 0 auto; color: #555;">{content.signsYouNeed.intro}</p>
+        </div>
+        
+        <div class="signs-grid">
+          {content.signsYouNeed.cards.map((card, index) => (
+            <div class="sign-card">
+              <div class="sign-icon">⚠️</div>
+              <h4>{card.heading}</h4>
+              <p>{card.content}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- WOOD TYPES (only for wood fence) -->
+  {content.woodTypes && (
+    <section class="section" style="background: #f8f8f8;">
+      <div class="container">
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <span class="section-label">MATERIALS</span>
+          <h2 class="section-title">{content.woodTypes.heading}</h2>
+          <p style="max-width: 700px; margin: 0 auto; color: #555;">{content.woodTypes.intro}</p>
+        </div>
+        
+        <div class="wood-types-grid">
+          {content.woodTypes.types.map(type => (
+            <div class="wood-type-card">
+              <h4>{type.name}</h4>
+              <p>{type.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- PROCESS SECTION -->
+  {content.process && (
+    <section class="section">
+      <div class="container">
+        <div style="text-align: center; margin-bottom: 2.5rem;">
+          <span class="section-label">HOW IT WORKS</span>
+          <h2 class="section-title">{content.process.heading}</h2>
+          <p style="max-width: 600px; margin: 0 auto; color: #555;">{content.process.intro}</p>
+        </div>
+        
+        <div class="process-grid">
+          {content.process.steps.map((step, index) => (
+            <div class="process-step">
+              <div class="step-number">{index + 1}</div>
+              <h4>{step.heading.replace(/^\d+\.\s*/, '')}</h4>
+              <p>{step.content}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- TESTIMONIAL -->
+  {testimonials && testimonials.length > 0 && (
+    <section class="section" style="background: #f8f8f8;">
+      <div class="container" style="max-width: 800px; text-align: center;">
+        <span class="section-label">TESTIMONIAL</span>
+        <h2 class="section-title">What Our Clients Say</h2>
+        
+        <div class="featured-testimonial">
+          <p class="testimonial-quote">"{testimonials[0].quote}"</p>
+          <div class="testimonial-author">
+            <strong>{testimonials[0].name}</strong>
+            <span>{testimonials[0].location}</span>
+          </div>
+          {images.badges.fiveStars && <img src={images.badges.fiveStars} alt="5 Star Rating" style="height: 30px; margin-top: 1rem;">}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- CTA SECTION -->
+  <section class="cta-section" style={`
+    background-image: linear-gradient(rgba(${overlayColor}, 0.9), rgba(${overlayColor}, 0.9)), url('${images.backgrounds.wood}');
+    background-size: cover;
+    background-position: center;
+  `}>
+    <div class="container" style="text-align: center;">
+      <h2>{content.cta.heading}</h2>
+      <p style="max-width: 600px; margin: 0 auto 1.5rem;">{content.cta.content}</p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href={phone.tel} class="btn" style="background: #FFD700; color: #1a1a1a;">{content.cta.ctaText} {phone.display}</a>
+        <a href="/contact" class="btn" style="background: transparent; border: 2px solid white;">Request Estimate</a>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  .section-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  /* Intro Grid */
+  .service-intro-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  
+  @media (max-width: 900px) {
+    .service-intro-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .service-intro-content h2 {
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+  }
+  
+  .service-badges {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  /* Form Wrapper */
+  .service-form-wrapper {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  }
+  
+  .service-form-wrapper h3 {
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+  }
+  
+  .form-urgency {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+  
+  .service-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .service-form input,
+  .service-form select,
+  .service-form textarea {
+    padding: 0.85rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+  
+  .service-form input:focus,
+  .service-form select:focus,
+  .service-form textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59, 37, 24, 0.1);
+  }
+
+  /* Content Two Col */
+  .content-two-col {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+  
+  .content-block {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    position: relative;
+  }
+  
+  .content-number {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    opacity: 0.2;
+  }
+  
+  .content-block h3 {
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+  }
+  
+  .content-block p {
+    color: #555;
+    line-height: 1.7;
+  }
+
+  /* Gallery */
+  .gallery-grid {
+    display: grid;
+    gap: 1rem;
+  }
+  
+  .gallery-grid img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s;
+  }
+  
+  .gallery-grid img:hover {
+    transform: scale(1.03);
+  }
+  
+  .gallery-3 { grid-template-columns: repeat(3, 1fr); }
+  .gallery-4 { grid-template-columns: repeat(2, 1fr); max-width: 900px; margin: 0 auto; }
+  .gallery-5 { grid-template-columns: repeat(3, 1fr); }
+  .gallery-6 { grid-template-columns: repeat(3, 1fr); }
+  
+  @media (max-width: 768px) {
+    .gallery-3, .gallery-4, .gallery-5, .gallery-6 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .gallery-3, .gallery-4, .gallery-5, .gallery-6 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Signs Grid */
+  .signs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .sign-card {
+    background: #f8f8f8;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent);
+  }
+  
+  .sign-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .sign-card h4 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .sign-card p {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  /* Wood Types Grid */
+  .wood-types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .wood-type-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    text-align: center;
+  }
+  
+  .wood-type-card h4 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .wood-type-card p {
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  /* Process Grid */
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .process-step {
+    text-align: center;
+    padding: 1.5rem;
+  }
+  
+  .step-number {
+    width: 50px;
+    height: 50px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 auto 1rem;
+  }
+  
+  .process-step h4 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .process-step p {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  /* Featured Testimonial */
+  .featured-testimonial {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    margin-top: 1.5rem;
+  }
+  
+  .featured-testimonial .testimonial-quote {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: #444;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+  }
+  
+  .featured-testimonial .testimonial-author {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .featured-testimonial .testimonial-author strong {
+    color: var(--primary);
+    font-size: 1.1rem;
+  }
+  
+  .featured-testimonial .testimonial-author span {
+    color: #777;
+    font-size: 0.9rem;
+  }
+</style>

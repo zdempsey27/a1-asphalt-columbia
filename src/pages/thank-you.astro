@@ -1,0 +1,151 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../config.js';
+
+const { businessName, phone, location } = siteConfig;
+const { city, stateAbbr } = location;
+---
+
+<BaseLayout 
+  title={`Thank You | ${businessName}`}
+  description={`Thank you for contacting ${businessName}. We'll be in touch soon!`}
+>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Thank You!</h1>
+      <p>We've received your request</p>
+    </div>
+  </section>
+
+  <section class="section thank-you-section">
+    <div class="container">
+      <div class="thank-you-content">
+        <div class="checkmark">✓</div>
+        
+        <h2>Your Request Has Been Submitted</h2>
+        
+        <p class="lead">
+          Thank you for reaching out to {businessName}! We've received your information and one of our fencing specialists will contact you within <strong>24 hours</strong>.
+        </p>
+        
+        <div class="next-steps">
+          <h3>What Happens Next?</h3>
+          <ol>
+            <li>Our team reviews your project details</li>
+            <li>We'll call or email to schedule your free estimate</li>
+            <li>A specialist visits your property to assess your needs</li>
+            <li>You receive a detailed, no-obligation quote</li>
+          </ol>
+        </div>
+        
+        <div class="urgent-contact">
+          <h3>Need Immediate Assistance?</h3>
+          <p>Call us directly and we'll be happy to help:</p>
+          <a href={phone.tel} class="btn btn-large">{phone.display}</a>
+        </div>
+        
+        <div class="return-home">
+          <a href="/">← Return to Homepage</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  .thank-you-section {
+    padding: 4rem 0;
+  }
+  
+  .thank-you-content {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .checkmark {
+    width: 80px;
+    height: 80px;
+    background: var(--primary);
+    color: white;
+    font-size: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+  }
+  
+  .thank-you-content h2 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+  }
+  
+  .lead {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+  }
+  
+  .next-steps {
+    background: #f9f9f9;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: left;
+    margin-bottom: 2.5rem;
+  }
+  
+  .next-steps h3 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+  }
+  
+  .next-steps ol {
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+  
+  .next-steps li {
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+  }
+  
+  .next-steps li:last-child {
+    margin-bottom: 0;
+  }
+  
+  .urgent-contact {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 2px solid var(--primary);
+    margin-bottom: 2rem;
+  }
+  
+  .urgent-contact h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .urgent-contact p {
+    margin-bottom: 1rem;
+  }
+  
+  .btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+  }
+  
+  .return-home a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .return-home a:hover {
+    text-decoration: underline;
+  }
+</style>

@@ -1,0 +1,693 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { siteConfig } from '../../../config.js';
+import { processContent } from '../../../utils/content.js';
+
+// Only generate paths for cities that have neighborhoods
+export function getStaticPaths() {
+  const paths = [];
+  for (const area of siteConfig.serviceAreas) {
+    if (area.neighborhoods && area.neighborhoods.length > 0) {
+      for (const neighborhood of area.neighborhoods) {
+        paths.push({
+          params: { city: area.slug, neighborhood: neighborhood.slug },
+          props: { area, neighborhood },
+        });
+      }
+    }
+  }
+  return paths;
+}
+
+const { city: citySlug, neighborhood: neighborhoodSlug } = Astro.params;
+const { area, neighborhood } = Astro.props;
+
+const { businessName, phone, location, forms, serviceAreas, services, testimonials, images, colors } = siteConfig;
+const { city, stateAbbr, region, county } = location;
+const overlayColor = colors.overlay;
+
+// Load neighborhood content from folder-based files: content/service-areas/[city]/[neighborhood].js
+const neighborhoodModules = import.meta.glob('../../../content/service-areas/*/*.js', { eager: true });
+
+const contentPath = `../../../content/service-areas/${citySlug}/${neighborhoodSlug}.js`;
+let neighborhoodContent;
+
+if (neighborhoodModules[contentPath]) {
+  const module = neighborhoodModules[contentPath];
+  const rawContent = module.default || Object.values(module)[0];
+  neighborhoodContent = processContent(rawContent, neighborhood.name);
+} else {
+  // Default content if no specific file exists
+  neighborhoodContent = {
+    areaName: neighborhood.name,
+    parentCity: area.name,
+    mapQuery: `${neighborhood.name},+${area.name},+${stateAbbr}`,
+
+    seo: {
+      title: `${siteConfig.niche} in ${neighborhood.name}, ${area.name} ${stateAbbr} | ${businessName}`,
+      description: `Professional ${siteConfig.nicheLC} in the ${neighborhood.name} neighborhood of ${area.name}, ${stateAbbr}. Driveways, sealcoating & repair. Call ${phone.display} for a free estimate.`,
+    },
+
+    hero: {
+      heading: `${siteConfig.niche} in ${neighborhood.name}`,
+      subtitle: `Serving the ${neighborhood.name} community in ${area.name}, ${stateAbbr}.`,
+      ctaText: "Get a Free Quote:",
+    },
+
+    intro: {
+      welcome: `<strong>${businessName}</strong> provides professional ${siteConfig.nicheLC} in the <strong>${neighborhood.name}</strong> area of ${area.name}, ${stateAbbr}.`,
+      paragraphs: [
+        `Whether you need a new asphalt driveway, resurfacing for an aging drive, or sealcoating to protect against the sun and rain, our team knows the ${neighborhood.name} area and delivers quality work built for local conditions.`,
+        `We're familiar with the HOA guidelines, permit requirements, and property layouts common in ${neighborhood.name}. Every job we do starts with proper base prep and quality hot-mix asphalt for long-term performance.`,
+      ],
+    },
+
+    services: {
+      heading: `${siteConfig.niche} Services in ${neighborhood.name}`,
+      intro: `Complete residential and commercial ${siteConfig.nicheLC} services for ${neighborhood.name} properties:`,
+      cards: [
+        {
+          heading: "Driveway Paving & Resurfacing",
+          content: `<strong>Asphalt driveways</strong> are our most requested work in ${neighborhood.name}. We handle new installs and mill-and-overlay resurfacing on a properly graded, compacted base.`,
+        },
+        {
+          heading: "Sealcoating & Crack Filling",
+          content: `<strong>Sealcoating</strong> every 2–3 years and hot-pour crack filling protect the binder from UV and keep water out of the base — the cheapest way for ${neighborhood.name} owners to extend pavement life.`,
+        },
+        {
+          heading: "Repair & Patching",
+          content: `<strong>Pothole repair</strong>, <strong>patching</strong>, and full-depth repair for failed sections — sawcut clean and tied back into the surrounding surface.`,
+        },
+      ],
+      footer: `Every job in ${neighborhood.name} follows local codes and is built to handle the climate conditions of the ${region}.`,
+    },
+
+    whyUs: {
+      heading: `Why ${neighborhood.name} Property Owners Choose Us`,
+      intro: "Here's what sets our work apart:",
+      cards: [
+        {
+          heading: "Neighborhood Knowledge",
+          content: `We've worked in and around ${neighborhood.name} and understand the area's common driveway and lot layouts, HOA standards, and local requirements.`,
+        },
+        {
+          heading: "Quality Construction",
+          content: `Properly graded and compacted base, the right asphalt thickness for the load, and drainage slope that keeps water off the surface. No shortcuts.`,
+        },
+        {
+          heading: "Licensed & Insured",
+          content: `Fully licensed and insured for ${siteConfig.nicheLC} in ${county}. We handle permitting and inspections as part of the project.`,
+        },
+      ],
+    },
+
+    cta: {
+      heading: `Get a Free Asphalt Estimate in ${neighborhood.name}`,
+      content: `Ready for new asphalt at your ${neighborhood.name} property? Call us or fill out the form for a free, no-obligation estimate.`,
+      ctaText: "Call Now:",
+    },
+  };
+}
+
+const content = neighborhoodContent;
+
+// Other neighborhoods in the same city (for cross-linking)
+const siblingNeighborhoods = area.neighborhoods.filter(n => n.slug !== neighborhoodSlug);
+---
+
+<BaseLayout 
+  title={content.seo.title}
+  description={content.seo.description}
+>
+
+  <!-- BREADCRUMB -->
+  <nav class="breadcrumb-bar">
+    <div class="container">
+      <a href="/service-areas">Service Areas</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href={`/service-areas/${area.slug}`}>{area.name}</a>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current">{neighborhood.name}</span>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section style={`
+    background-image: linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 100%), url('${images.backgrounds.installer}');
+    background-size: cover;
+    background-position: center;
+    padding: 5rem 2rem;
+    color: white;
+    text-align: center;
+  `}>
+    <div class="container">
+      <span class="section-label" style="color: var(--accent);">NEIGHBORHOOD</span>
+      <h1 style="font-size: 2.75rem; margin-bottom: 1rem;">{content.hero.heading}</h1>
+      <p style="font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto 2rem;">{content.hero.subtitle}</p>
+      <a href={phone.tel} class="btn" style="background: #FFD700; color: #1a1a1a;">{content.hero.ctaText} {phone.display}</a>
+    </div>
+  </section>
+
+  <!-- INTRO SECTION -->
+  <section class="section">
+    <div class="container">
+      <div class="area-intro-grid">
+        <div class="area-intro-content">
+          <span class="section-label">WELCOME</span>
+          <p class="intro-welcome" set:html={content.intro.welcome}></p>
+          {content.intro.paragraphs.map(para => (
+            <p class="intro-para" set:html={para}></p>
+          ))}
+          
+          <div class="area-badges">
+            {images.badges.licensed && <img src={images.badges.licensed} alt="Licensed & Insured" style="height: 50px;">}
+            {images.badges.award && <img src={images.badges.award} alt="Award Winning" style="height: 60px;">}
+          </div>
+        </div>
+        
+        <div class="map-wrapper">
+          <iframe 
+            src={`https://maps.google.com/maps?q=${content.mapQuery}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
+            width="100%" 
+            height="350" 
+            style="border:0;" 
+            allowfullscreen="" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES SECTION -->
+  <section class="section" style="background: #f8f8f8;">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <span class="section-label">OUR SERVICES</span>
+        <h2 class="section-title">{content.services.heading}</h2>
+        <p style="max-width: 700px; margin: 0 auto; color: #555;">{content.services.intro}</p>
+      </div>
+      
+      <div class="services-grid">
+        {content.services.cards.map((card, index) => (
+          <div class="service-card">
+            <div class="service-number">{String(index + 1).padStart(2, '0')}</div>
+            <h3>{card.heading}</h3>
+            <p set:html={card.content}></p>
+          </div>
+        ))}
+      </div>
+
+      {content.services.footer && (
+        <p style="text-align: center; margin-top: 2rem; font-style: italic; color: #555;">{content.services.footer}</p>
+      )}
+    </div>
+  </section>
+
+  <!-- ALL SERVICES LINKS -->
+  <section class="section">
+    <div class="container" style="text-align: center;">
+      <span class="section-label">OUR SERVICES</span>
+      <h2 class="section-title">{siteConfig.niche} Services in {content.areaName}</h2>
+      <p style="max-width: 600px; margin: 0 auto 2rem; color: #555;">We provide our full range of {siteConfig.nicheLC} services for residential and commercial properties in {content.areaName}.</p>
+      
+      <div class="service-tags">
+        {services.map(service => (
+          <a href={`/services/${service.slug}`} class="service-tag">{service.name}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY US SECTION -->
+  <section class="section" style={`
+    background-image: linear-gradient(rgba(${overlayColor}, 0.92), rgba(${overlayColor}, 0.92)), url('${images.backgrounds.wood}');
+    background-size: cover;
+    background-position: center;
+    color: white;
+  `}>
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <span class="section-label" style="color: var(--accent);">WHY CHOOSE US</span>
+        <h2 class="section-title" style="color: white;">{content.whyUs.heading}</h2>
+        <p style="max-width: 600px; margin: 0 auto; opacity: 0.9;">{content.whyUs.intro}</p>
+      </div>
+      
+      <div class="why-grid">
+        {content.whyUs.cards.map(card => (
+          <div class="why-card">
+            <h4>{card.heading}</h4>
+            <p set:html={card.content}></p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  {testimonials && testimonials.length > 0 && (
+    <section class="section" style="background: #f8f8f8;">
+      <div class="container" style="max-width: 800px; text-align: center;">
+        <span class="section-label">TESTIMONIAL</span>
+        <h2 class="section-title">What Our Clients Say</h2>
+        
+        <div class="featured-testimonial">
+          <p class="testimonial-quote">"{testimonials[0].quote}"</p>
+          <div class="testimonial-author">
+            <strong>{testimonials[0].name}</strong>
+            <span>{testimonials[0].location}</span>
+          </div>
+          {images.badges.fiveStars && <img src={images.badges.fiveStars} alt="5 Star Rating" style="height: 30px; margin-top: 1rem;">}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- OTHER NEIGHBORHOODS IN THIS CITY -->
+  {siblingNeighborhoods.length > 0 && (
+    <section class="section">
+      <div class="container" style="text-align: center;">
+        <span class="section-label">MORE NEIGHBORHOODS</span>
+        <h2 class="section-title">Other {area.name} Neighborhoods We Serve</h2>
+        
+        <div class="area-tags" style="margin-bottom: 2rem;">
+          {siblingNeighborhoods.map(n => (
+            <a href={`/service-areas/${area.slug}/${n.slug}`} class="area-tag">{n.name}</a>
+          ))}
+        </div>
+
+        <a href={`/service-areas/${area.slug}`} class="back-to-city">
+          ← Back to {area.name} Service Area
+        </a>
+      </div>
+    </section>
+  )}
+
+  <!-- NEARBY SERVICE AREAS -->
+  <section class="section" style="background: #f8f8f8;">
+    <div class="container" style="text-align: center;">
+      <span class="section-label">SERVICE AREAS</span>
+      <h2 class="section-title">Other Areas We Serve</h2>
+      
+      <div class="area-tags">
+        {serviceAreas.filter(a => a.slug !== citySlug).map(nearby => (
+          <a href={`/service-areas/${nearby.slug}`} class="area-tag">{nearby.name}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FORM SECTION -->
+  <section class="section">
+    <div class="container">
+      <div class="form-grid">
+        <div class="form-content">
+          <span class="section-label">CONTACT US</span>
+          <h2>{content.cta.heading}</h2>
+          <p style="color: #555; line-height: 1.7; margin-bottom: 1.5rem;">{content.cta.content}</p>
+          
+          <div class="call-box">
+            <span>Prefer to call?</span>
+            <a href={phone.tel} class="phone-link">{phone.display}</a>
+          </div>
+          
+          <div class="form-badges">
+            {images.badges.fiveStars && <img src={images.badges.fiveStars} alt="5 Star Rated" style="height: 35px;">}
+          </div>
+        </div>
+        
+        <div class="form-wrapper">
+          <span class="section-label">FREE ESTIMATE</span>
+          <h3>Request Your Free Quote</h3>
+          <p class="form-urgency">Limited Slots Available This Month!</p>
+          
+          <form class="lead-form" action={forms.action} method="POST">
+            <input type="hidden" name="site_name" value={businessName}>
+            <input type="hidden" name="client_email" value={forms.clientEmail}>
+            <input type="hidden" name="service_area" value={`${neighborhood.name}, ${area.name}`}>
+            
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email Address" required>
+            <input type="tel" name="phone" placeholder="Phone Number" required>
+            <select name="service" required>
+              <option value="">Service Needed</option>
+              {forms.serviceOptions.map(option => (
+                <option value={option.value}>{option.label}</option>
+              ))}
+            </select>
+            <textarea name="message" placeholder="Tell us about your project..." rows="3"></textarea>
+            <button type="submit" class="btn" style="background: var(--primary); width: 100%;">Get My Free Quote</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  <section class="cta-section" style={`
+    background-image: linear-gradient(rgba(${overlayColor}, 0.9), rgba(${overlayColor}, 0.9)), url('${images.backgrounds.chainLink}');
+    background-size: cover;
+    background-position: center;
+  `}>
+    <div class="container" style="text-align: center;">
+      <h2>Ready to Get Started?</h2>
+      <p style="max-width: 600px; margin: 0 auto 1.5rem;">Call {businessName} today for your free {siteConfig.nicheLC} estimate in {neighborhood.name}.</p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href={phone.tel} class="btn" style="background: #FFD700; color: #1a1a1a;">Call {phone.display}</a>
+        <a href="/contact" class="btn" style="background: transparent; border: 2px solid white;">Contact Us</a>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  /* Breadcrumb */
+  .breadcrumb-bar {
+    background: #f0f0f0;
+    padding: 0.75rem 0;
+    font-size: 0.9rem;
+  }
+
+  .breadcrumb-bar a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .breadcrumb-bar a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .breadcrumb-sep {
+    margin: 0 0.5rem;
+    color: #999;
+  }
+
+  .breadcrumb-current {
+    color: #666;
+  }
+
+  .back-to-city {
+    display: inline-block;
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+
+  .back-to-city:hover {
+    color: var(--accent);
+  }
+
+  .section-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  /* Intro Grid */
+  .area-intro-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  
+  @media (max-width: 900px) {
+    .area-intro-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .intro-welcome {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  
+  .intro-para {
+    line-height: 1.8;
+    color: #444;
+    margin-bottom: 1rem;
+  }
+  
+  .area-badges {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .map-wrapper {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+  }
+  
+  .map-wrapper iframe {
+    display: block;
+  }
+
+  /* Services Grid */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .service-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    position: relative;
+  }
+  
+  .service-number {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    opacity: 0.2;
+  }
+  
+  .service-card h3 {
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+  }
+  
+  .service-card p {
+    color: #555;
+    line-height: 1.7;
+  }
+
+  /* Service Tags */
+  .service-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  
+  .service-tag {
+    background: var(--primary);
+    color: white;
+    padding: 0.6rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+  
+  .service-tag:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  /* Why Grid */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .why-card {
+    background: rgba(255,255,255,0.1);
+    padding: 1.5rem;
+    border-radius: 8px;
+    backdrop-filter: blur(4px);
+  }
+  
+  .why-card h4 {
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+  }
+  
+  .why-card p {
+    color: rgba(255,255,255,0.9);
+    line-height: 1.7;
+  }
+
+  /* Area Tags */
+  .area-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  
+  .area-tag {
+    background: #f0f0f0;
+    color: var(--primary);
+    padding: 0.6rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+  
+  .area-tag:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  /* Featured Testimonial */
+  .featured-testimonial {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    margin-top: 1.5rem;
+  }
+  
+  .featured-testimonial .testimonial-quote {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: #444;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+  }
+  
+  .featured-testimonial .testimonial-author {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .featured-testimonial .testimonial-author strong {
+    color: var(--primary);
+    font-size: 1.1rem;
+  }
+  
+  .featured-testimonial .testimonial-author span {
+    color: #777;
+    font-size: 0.9rem;
+  }
+
+  /* Form Grid */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  
+  @media (max-width: 900px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .form-content h2 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .call-box {
+    background: var(--primary);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .call-box span {
+    color: rgba(255,255,255,0.8);
+  }
+  
+  .call-box .phone-link {
+    color: #FFD700;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  
+  .form-badges {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  /* Form Wrapper */
+  .form-wrapper {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+  }
+  
+  .form-wrapper h3 {
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+  }
+  
+  .form-urgency {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+  
+  .lead-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .lead-form input,
+  .lead-form select,
+  .lead-form textarea {
+    padding: 0.85rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+  
+  .lead-form input:focus,
+  .lead-form select:focus,
+  .lead-form textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(31, 42, 51, 0.1);
+  }
+</style>

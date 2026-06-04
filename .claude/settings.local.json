@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/services/block-wall.js\" \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/services/composite-fence.js\" \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/services/pool-fencing.js\" \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/service-areas/avondale.js\" \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/service-areas/buckeye.js\" \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/service-areas/el-mirage.js\" \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/service-areas/goodyear.js\" \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/service-areas/litchfield-park.js\" \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/service-areas/sun-city.js\" \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/service-areas/wittmann.js\" \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/service-areas/youngtown.js\")",
+      "Bash(rm -rf \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/service-areas/peoria/\" \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/service-areas/surprise/\")",
+      "Bash(mkdir -p \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/service-areas/fulshear/\" \"C:/Users/Owner/Documents/Three Oaks Digital/Website Creation/fulshear-fence-builders/src/content/service-areas/katy/\")",
+      "Bash(rm -rf src/content/service-areas/fulshear src/content/service-areas/katy)",
+      "Bash(rm -f src/content/service-areas/brookshire.js src/content/service-areas/missouri-city.js src/content/service-areas/needville.js src/content/service-areas/richmond.js src/content/service-areas/rosenberg.js src/content/service-areas/simonton.js src/content/service-areas/sugar-land.js)",
+      "Bash(mkdir -p src/content/service-areas/saratoga-springs src/content/service-areas/eagle-mountain src/content/service-areas/lehi)",
+      "Bash(rm -f alpine.js american-fork.js bluffdale.js cedar-hills.js highland.js pleasant-grove.js)",
+      "Bash(rm -rf eagle-mountain lehi saratoga-springs)",
+      "Bash(node -e ' *)",
+      "Bash(rm -f services/*.js service-areas/*.js)",
+      "Bash(mkdir -p service-areas/columbia)"
+    ]
+  }
+}

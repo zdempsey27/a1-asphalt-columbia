@@ -1,0 +1,16 @@
+{
+  "name": "a1-asphalt-columbia",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Reusable fencing company website template built with Astro",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^6.1.1",
+    "@astrojs/sitemap": "^3.1.0"
+  }
+}

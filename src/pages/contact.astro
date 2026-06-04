@@ -1,0 +1,364 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../config.js';
+import { contactContent } from '../content/contact.js';
+import { processContent } from '../utils/content.js';
+
+const content = processContent(contactContent);
+const { businessName, phone, location, forms, niche, businessHours, colors, images } = siteConfig;
+const { city, stateAbbr, region } = location;
+const overlayColor = colors.overlay;
+---
+
+<BaseLayout 
+  title={`Contact Us | ${businessName}`}
+  description={`Contact ${businessName} for a free ${niche.toLowerCase()} estimate in ${city}, ${stateAbbr}. Call ${phone.display} or fill out our contact form.`}
+>
+
+  <!-- HERO SECTION -->
+  <section style={`
+    background-image: linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%), url('${images.backgrounds.installer}');
+    background-size: cover;
+    background-position: center;
+    padding: 5rem 2rem;
+    color: white;
+    text-align: center;
+  `}>
+    <div class="container">
+      <span class="section-label" style="color: var(--accent);">CONTACT US</span>
+      <h1 style="font-size: 2.75rem; margin-bottom: 1rem;">{content.hero.heading}</h1>
+      <p style="font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto;">{content.hero.subtitle}</p>
+    </div>
+  </section>
+
+  <!-- MAIN CONTACT SECTION -->
+  <section class="section">
+    <div class="container">
+      <div class="contact-grid">
+        
+        <!-- LEFT: Contact Info -->
+        <div class="contact-info">
+          <span class="section-label">GET IN TOUCH</span>
+          <h2>{content.main.heading}</h2>
+          <p style="color: #555; line-height: 1.7; margin-bottom: 2rem;">{content.main.content}</p>
+          
+          <div class="info-cards">
+            <div class="info-card">
+              <div class="info-icon">📞</div>
+              <div class="info-text">
+                <h3>{content.contactInfo.phoneLabel}</h3>
+                <a href={phone.tel}>{phone.display}</a>
+              </div>
+            </div>
+            
+            <div class="info-card">
+              <div class="info-icon">📍</div>
+              <div class="info-text">
+                <h3>{content.contactInfo.addressLabel}</h3>
+                <p>{city}, {stateAbbr} & {region}</p>
+              </div>
+            </div>
+            
+            <div class="info-card">
+              <div class="info-icon">🕐</div>
+              <div class="info-text">
+                <h3>{content.contactInfo.hoursLabel}</h3>
+                <p style="white-space: pre-line;">{content.contactInfo.hours}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Trust Badges -->
+          <div class="contact-badges">
+            {images.badges.licensed && <img src={images.badges.licensed} alt="Licensed & Insured" style="height: 50px;">}
+            {images.badges.award && <img src={images.badges.award} alt="Award Winning" style="height: 60px;">}
+          </div>
+          
+          <!-- Direct Call Box -->
+          <div class="direct-call">
+            <h3>{content.contactInfo.preferCallHeading}</h3>
+            <p style="color: #555; margin-bottom: 1rem;">Speak directly with our team about your project.</p>
+            <a href={phone.tel} class="btn" style="background: #FFD700; color: #1a1a1a; width: 100%; text-align: center;">{phone.display}</a>
+          </div>
+        </div>
+        
+        <!-- RIGHT: Contact Form -->
+        <div class="contact-form-wrapper">
+          <span class="section-label">FREE ESTIMATE</span>
+          <h2>{content.form.heading}</h2>
+          <p class="form-urgency">Limited Slots Available This Month!</p>
+          
+          <form class="contact-form" action={forms.action} method="POST">
+            <input type="hidden" name="site_name" value={businessName}>
+            <input type="hidden" name="client_email" value={forms.clientEmail}>
+            
+            <div class="form-group">
+              <label for="name">{content.form.fields.name}</label>
+              <input type="text" id="name" name="name" placeholder="John Smith" required>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">{content.form.fields.email}</label>
+                <input type="email" id="email" name="email" placeholder="john@example.com" required>
+              </div>
+              <div class="form-group">
+                <label for="phone">{content.form.fields.phone}</label>
+                <input type="tel" id="phone" name="phone" placeholder="(432) 555-1234" required>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="address">{content.form.fields.address}</label>
+              <input type="text" id="address" name="address" placeholder={content.form.fields.addressPlaceholder}>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="service">{content.form.fields.service}</label>
+                <select id="service" name="service" required>
+                  <option value="">Select a service...</option>
+                  {forms.serviceOptions.map(option => (
+                    <option value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="timeline">{content.form.fields.timeline}</label>
+                <select id="timeline" name="timeline">
+                  {content.form.timelineOptions.map(option => (
+                    <option value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="message">{content.form.fields.message}</label>
+              <textarea id="message" name="message" rows="4" placeholder={content.form.fields.messagePlaceholder}></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-large" style="background: var(--primary); width: 100%;">{content.form.submitText}</button>
+          </form>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP / SERVICE AREA SECTION -->
+  <section class="section" style={`
+    background-image: linear-gradient(rgba(${overlayColor}, 0.92), rgba(${overlayColor}, 0.92)), url('${images.backgrounds.metal}');
+    background-size: cover;
+    background-position: center;
+    color: white;
+  `}>
+    <div class="container" style="text-align: center;">
+      <span class="section-label" style="color: var(--accent);">SERVICE AREA</span>
+      <h2 style="color: white; margin-bottom: 1rem;">Proudly Serving {location.region}</h2>
+      <p style="max-width: 600px; margin: 0 auto 2rem; opacity: 0.9;">We provide professional fencing services throughout {location.county} and surrounding areas including {siteConfig.serviceAreas.map(a => a.name).join(', ')}.</p>
+      
+      <div class="area-tags">
+        {siteConfig.serviceAreas.map(area => (
+          <span class="area-tag">{area.name}</span>
+        ))}
+      </div>
+      
+      <a href="/service-areas" class="btn" style="background: #FFD700; color: #1a1a1a; margin-top: 2rem;">View All Service Areas</a>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  .section-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  
+  @media (max-width: 900px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+  
+  .contact-info h2 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Info Cards */
+  .info-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .info-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f8f8;
+    border-radius: 8px;
+  }
+  
+  .info-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+  
+  .info-text h3 {
+    font-size: 0.9rem;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .info-text a {
+    color: var(--primary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
+  .info-text a:hover {
+    color: var(--accent);
+  }
+  
+  .info-text p {
+    color: #555;
+    line-height: 1.5;
+  }
+  
+  /* Contact Badges */
+  .contact-badges {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  /* Direct Call */
+  .direct-call {
+    background: var(--primary);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  .direct-call h3 {
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+  
+  .direct-call p {
+    color: rgba(255,255,255,0.8);
+  }
+  
+  /* Form Wrapper */
+  .contact-form-wrapper {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  }
+  
+  .contact-form-wrapper h2 {
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+  }
+  
+  .form-urgency {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+  
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  @media (max-width: 500px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  
+  .form-group label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.85rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59, 37, 24, 0.1);
+  }
+  
+  .btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+  
+  /* Area Tags */
+  .area-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  
+  .area-tag {
+    background: rgba(255,255,255,0.15);
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    backdrop-filter: blur(4px);
+  }
+</style>

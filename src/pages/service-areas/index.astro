@@ -1,0 +1,231 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { siteConfig } from '../../config.js';
+
+const { businessName, phone, location, serviceAreas, images, colors } = siteConfig;
+const { city, stateAbbr, county, region } = location;
+
+const title = `Service Areas | ${businessName}`;
+const description = `${businessName} serves ${city}, ${stateAbbr} and surrounding communities. Professional ${siteConfig.nicheLC} throughout ${county}. Call ${phone.display}.`;
+
+const overlayColor = colors.overlay;
+const accentColor = colors.accent;
+---
+
+<BaseLayout title={title} description={description}>
+  <!-- HERO SECTION -->
+  <section class="hero-section" style={`
+    background-image: linear-gradient(rgba(${overlayColor}, 0.9), rgba(${overlayColor}, 0.9)), url('${images.backgrounds.wood}');
+    background-size: cover;
+    background-position: center;
+  `}>
+    <div class="container">
+      <span class="hero-label" style={`color: ${accentColor};`}>WHERE WE WORK</span>
+      <h1>Our Service Areas</h1>
+      <p>Proudly serving {city} and communities throughout {county}.</p>
+    </div>
+  </section>
+
+  <!-- SERVICE AREAS GRID -->
+  <section class="section">
+    <div class="container">
+      <div class="intro-text">
+        <p>{businessName} provides professional {siteConfig.nicheLC} services across {region}. Whether you're in {city} or a surrounding community, our team delivers the same quality craftsmanship and reliable service.</p>
+      </div>
+
+      <div class="areas-grid">
+        {serviceAreas.map(area => (
+          <div class="area-group">
+            <a href={`/service-areas/${area.slug}`} class="area-card">
+              <div class="area-icon">📍</div>
+              <h2>{area.name}</h2>
+              <span class="area-link">View Details →</span>
+            </a>
+            {area.neighborhoods && area.neighborhoods.length > 0 && (
+              <div class="neighborhood-links">
+                {area.neighborhoods.map(n => (
+                  <a href={`/service-areas/${area.slug}/${n.slug}`} class="neighborhood-link-item">
+                    {n.name}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP SECTION -->
+  <section class="section" style="background: #f8f8f8;">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <h2 class="section-title">Find Us</h2>
+        <p>Based in {city}, {stateAbbr} — serving the entire region.</p>
+      </div>
+      <div class="map-container">
+        <iframe
+          src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${location.mapQuery}&zoom=10`}
+          width="100%"
+          height="400"
+          style="border:0; border-radius: 8px;"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  <section class="section cta-section">
+    <div class="container" style="text-align: center;">
+      <h2>Don't See Your Area?</h2>
+      <p>Give us a call — we may still be able to help with your {siteConfig.nicheLC} project.</p>
+      <a href={phone.tel} class="btn" style="background: white; color: var(--primary); margin-top: 1rem;">
+        Call Now: {phone.display}
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero-section {
+    padding: 4rem 0;
+    color: white;
+    text-align: center;
+  }
+
+  .hero-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-section p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .intro-text {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #444;
+  }
+
+  .areas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .area-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .area-card {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 3px solid var(--secondary);
+  }
+
+  .area-group:has(.neighborhood-links) .area-card {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: none;
+  }
+
+  .neighborhood-links {
+    background: #f8f8f8;
+    border-radius: 0 0 8px 8px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border-bottom: 3px solid var(--accent);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .neighborhood-link-item {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.35rem 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .neighborhood-link-item:hover {
+    background: var(--primary);
+    color: white;
+  }
+
+  .area-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  }
+
+  .area-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .area-card h2 {
+    font-size: 1.2rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .area-link {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .area-card:hover .area-link {
+    color: var(--accent);
+  }
+
+  .map-container {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  @media (max-width: 768px) {
+    .hero-section h1 {
+      font-size: 2rem;
+    }
+
+    .areas-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .areas-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

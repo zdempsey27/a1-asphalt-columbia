@@ -1,0 +1,11 @@
+name = "lead-form-handler"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Environment variables - set these in Cloudflare dashboard or via wrangler secret
+# RESEND_API_KEY = "your-resend-api-key"
+# AGENCY_EMAIL = "your@email.com"
+
+[vars]
+# You can set non-sensitive defaults here
+# AGENCY_EMAIL = "your@email.com"

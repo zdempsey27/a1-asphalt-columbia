@@ -1,0 +1,695 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../config.js';
+import { homepageContent } from '../content/homepage.js';
+import { processContent } from '../utils/content.js';
+
+// Process all content to replace variables
+const content = processContent(homepageContent);
+
+const { businessName, phone, location, services, images, forms, hero, colors, stats, testimonials } = siteConfig;
+const { city, stateAbbr } = location;
+
+// Colors for inline styles
+const primaryColor = colors.primary;
+const accentColor = colors.accent;
+const overlayColor = colors.overlay;
+---
+
+<BaseLayout>
+  
+  <!-- HERO SECTION -->
+  <section style={`
+    background-image: linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.4) 100%), url('${images.heroMain}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 3rem 2rem;
+    display: flex;
+    align-items: center;
+  `}>
+    <div style="
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 4rem;
+      align-items: center;
+    " class="hero-grid">
+      
+      <!-- Left Column: Content -->
+      <div style="color: white;">
+        <div style={`
+          display: inline-flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 1rem;
+        `}>
+          <span style={`width: 40px; height: 3px; background: ${accentColor};`}></span>
+          <span style="font-size: 0.9rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;">
+            {hero.tagline}
+          </span>
+        </div>
+        
+        <h1 style="font-size: 3rem; font-weight: 700; line-height: 1.1; margin-bottom: 1.5rem;">
+          {hero.headline}
+        </h1>
+        
+        <p style="font-size: 1.15rem; line-height: 1.7; opacity: 0.9; margin-bottom: 2rem; max-width: 500px;">
+          {hero.description}
+        </p>
+        
+        <a href="#quote-form" style="
+          display: inline-block;
+          background: #FFD700;
+          color: #1a1a1a;
+          font-size: 1.1rem;
+          font-weight: 700;
+          padding: 1rem 2.5rem;
+          border-radius: 4px;
+          text-decoration: none;
+          margin-bottom: 2rem;
+          transition: transform 0.2s;
+          box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        ">
+          {hero.ctaText}
+        </a>
+        
+        <!-- Reviews -->
+        {hero.reviews.count > 0 && (
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+            <div style="display: flex; gap: 2px;">
+              <span style="color: #FFD700; font-size: 1.3rem;">★</span>
+              <span style="color: #FFD700; font-size: 1.3rem;">★</span>
+              <span style="color: #FFD700; font-size: 1.3rem;">★</span>
+              <span style="color: #FFD700; font-size: 1.3rem;">★</span>
+              <span style="color: #FFD700; font-size: 1.3rem;">★</span>
+            </div>
+            <span style="font-weight: 600;">
+              {hero.reviews.rating}/5 – {hero.reviews.count}+ Verified Reviews
+            </span>
+          </div>
+        )}
+        
+        <p style="font-size: 0.9rem; opacity: 0.8; font-style: italic; margin-bottom: 1.5rem;">
+          Trusted by {hero.reviews.count}+ homeowners throughout {city} and surrounding areas.
+        </p>
+        
+        <!-- Trust Badges -->
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center;">
+          {images.badges.licensed && <img src={images.badges.licensed} alt="Licensed & Insured" style="height: 50px; width: auto;">}
+          {images.badges.award && <img src={images.badges.award} alt="Award Winning" style="height: 60px; width: auto;">}
+        </div>
+      </div>
+      
+      <!-- Right Column: Form -->
+      <div id="quote-form" style={`
+        background: ${primaryColor};
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+      `}>
+        <h2 style="color: white; font-size: 1.6rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem;">
+          {hero.formHeading}
+        </h2>
+        <p style={`color: ${accentColor}; font-size: 0.95rem; font-weight: 600; text-align: center; margin-bottom: 1.5rem;`}>
+          {hero.urgencyText}
+        </p>
+        
+        <form action={forms.action} method="POST" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <input type="hidden" name="site_name" value={businessName}>
+          <input type="hidden" name="client_email" value={forms.clientEmail}>
+          
+          <input type="text" name="name" placeholder="Full Name" required style="
+            width: 100%;
+            padding: 0.9rem 1rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            box-sizing: border-box;
+          ">
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;" class="form-row-grid">
+            <input type="email" name="email" placeholder="Email" required style="
+              width: 100%;
+              padding: 0.9rem 1rem;
+              font-size: 1rem;
+              border: none;
+              border-radius: 6px;
+              box-sizing: border-box;
+            ">
+            <input type="tel" name="phone" placeholder="Phone" required style="
+              width: 100%;
+              padding: 0.9rem 1rem;
+              font-size: 1rem;
+              border: none;
+              border-radius: 6px;
+              box-sizing: border-box;
+            ">
+          </div>
+          
+          <select name="service" required style="
+            width: 100%;
+            padding: 0.9rem 1rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            box-sizing: border-box;
+            background: white;
+          ">
+            <option value="">Service Needed</option>
+            {forms.serviceOptions.map(option => (
+              <option value={option.value}>{option.label}</option>
+            ))}
+          </select>
+          
+          <textarea name="message" placeholder="Tell us about your project..." rows="3" style="
+            width: 100%;
+            padding: 0.9rem 1rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: inherit;
+            resize: vertical;
+          "></textarea>
+          
+          <button type="submit" style={`
+            background: ${accentColor};
+            color: #1a1a1a;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s;
+          `}>
+            Get My Free Quote
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTRO SECTION -->
+  <section class="section intro-section">
+    <div class="container">
+      <div class="intro-grid">
+        <div class="intro-image">
+          {images.brandedTruck && <img src={images.brandedTruck} alt={`${businessName} Work Truck`}>}
+        </div>
+        <div class="intro-content">
+          <span class="section-label">ABOUT US</span>
+          <h2 class="section-title">{content.intro.heading}</h2>
+          {content.intro.paragraphs.map(para => (
+            <p set:html={para} style="line-height: 1.8; margin-bottom: 1rem; color: #444;"></p>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES OVERVIEW -->
+  <section class="section" style="background: #f8f8f8;">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <span class="section-label">OUR SERVICES</span>
+        <h2 class="section-title">{`Professional ${siteConfig.niche} Services in ${city}`}</h2>
+      </div>
+      <div class="services-grid">
+        {services.map(service => {
+          const cardContent = content.serviceCards[service.slug];
+          const cardImage = images.serviceCards[service.slug];
+          return (
+            <div class="service-card">
+              <img src={cardImage} alt={`${service.name} Installation in ${city}, ${stateAbbr}`}>
+              <div class="service-card-content">
+                <h3>{service.name}</h3>
+                <p>{cardContent?.description || `Professional ${service.name.toLowerCase()} services in ${city}, ${stateAbbr}.`}</p>
+                <a href={`/services/${service.slug}`} class="btn btn-secondary">{cardContent?.ctaText || 'Learn More →'}</a>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT SECTION (Two Column) -->
+  <section class="section about-section" style={`
+    background-image: linear-gradient(rgba(${overlayColor}, 0.92), rgba(${overlayColor}, 0.92)), url('${images.backgrounds.vinyl}');
+    background-size: cover;
+    background-position: center;
+  `}>
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-content">
+          <span class="section-label" style={`color: ${accentColor};`}>LOCAL EXPERTS</span>
+          <h2 style="color: white;">{content.about.heading}</h2>
+          <p style="line-height: 1.8; color: rgba(255,255,255,0.9); margin-bottom: 1.5rem;">{content.about.content}</p>
+          <a href="/about" class="btn" style="background: var(--accent); color: #1a1a1a;">{content.about.ctaText}</a>
+        </div>
+        <div class="about-image">
+          <img src={images.installers[1] || images.aboutWork} alt={`${siteConfig.niche} Contractor in ${city}, ${stateAbbr}`}>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY CHOOSE US SECTION (with Progress Bars) -->
+  <section class="section" style="background: #f8f8f8;">
+    <div class="container">
+      <div class="why-us-grid">
+        <div class="why-us-content">
+          <span class="section-label">WHY CHOOSE US</span>
+          <h2 class="section-title">{content.whyChooseUs.heading}</h2>
+          <p style="margin-bottom: 2rem; color: #555; line-height: 1.7;">{content.whyChooseUs.intro}</p>
+          
+          <!-- Progress Bars -->
+          <div class="progress-bars">
+            {stats.map(stat => (
+              <div class="progress-item">
+                <div class="progress-header">
+                  <span class="progress-label">{stat.label}</span>
+                  <span class="progress-value">{stat.value}%</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" data-width={stat.value}></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <a href={phone.tel} class="btn" style="margin-top: 1.5rem;">Request A Free Quote</a>
+        </div>
+        <div class="why-us-image">
+          <img src={images.installers[2] || images.backgrounds.installer} alt={`Professional ${siteConfig.niche} in ${city}`} style="max-height: 400px; object-fit: cover;">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMAGE GALLERY SECTION -->
+  <section class="section" style={`
+    background-image: linear-gradient(rgba(${overlayColor}, 0.92), rgba(${overlayColor}, 0.92)), url('${images.backgrounds.metal}');
+    background-size: cover;
+    background-position: center;
+  `}>
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <span class="section-label" style={`color: ${accentColor};`}>OUR WORK</span>
+        <h2 class="section-title" style="color: white;">{content.gallery.heading}</h2>
+      </div>
+      <div class="gallery-grid">
+        {images.gallery.map(img => (
+          <img src={img.src} alt={img.alt.replace('{city}', city).replace('{stateAbbr}', stateAbbr)}>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS SECTION -->
+  <section class="section testimonials-section" style="background: #f8f8f8;">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <span class="section-label">CUSTOMER TESTIMONIALS</span>
+        <h2 class="section-title">Hear From Our Clients</h2>
+      </div>
+      
+      <div class="testimonials-grid">
+        {testimonials.map(testimonial => (
+          <div class="testimonial-card">
+            <p class="testimonial-quote">{testimonial.quote}</p>
+            <div class="testimonial-footer">
+              <strong class="testimonial-name">{testimonial.name}</strong>
+              {images.badges.fiveStars && <img src={images.badges.fiveStars} alt="5 Star Rating" class="testimonial-badge">}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- PERKS SECTION -->
+  <section class="section perks-section" style={`
+    background-image: linear-gradient(rgba(${overlayColor}, 0.92), rgba(${overlayColor}, 0.92)), url('${images.backgrounds.chainLink}');
+    background-size: cover;
+    background-position: center;
+    color: white;
+  `}>
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <span class="section-label" style={`color: ${accentColor};`}>THE DIFFERENCE</span>
+        <h2 class="section-title" style="color: white;">{content.perks.heading}</h2>
+        <p style="max-width: 700px; margin: 0 auto; color: rgba(255,255,255,0.85);">{content.perks.intro}</p>
+      </div>
+      
+      <div class="card-grid">
+        {content.perks.cards.map(card => (
+          <div class="card" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.15);">
+            <h3 style={`color: ${accentColor};`}>{card.heading}</h3>
+            <p style="color: rgba(255,255,255,0.9);">{card.content}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ SECTION (Accordion) -->
+  <section class="section faq-section" style="background: #f8f8f8;">
+    <div class="container" style="max-width: 800px;">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <span class="section-label">STILL HAVE QUESTIONS?</span>
+        <h2 class="section-title">{content.faq.heading}</h2>
+        <p style="color: #555;">{content.faq.intro}</p>
+      </div>
+      
+      <div class="faq-accordion">
+        {content.faq.questions.map((faq, index) => (
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false" data-faq-btn>
+              <span>{faq.question}</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>{faq.answer}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  <section class="cta-section" style={`
+    background-image: linear-gradient(rgba(${overlayColor}, 0.9), rgba(${overlayColor}, 0.9)), url('${images.backgrounds.wood}');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  `}>
+    <div class="container" style="text-align: center;">
+      <h2>{content.cta.heading}</h2>
+      <p style="max-width: 600px; margin: 0 auto 1.5rem;">{content.cta.content}</p>
+      <a href={phone.tel} class="btn" style="background: #FFD700; color: #1a1a1a;">{content.cta.ctaText} {phone.display}</a>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  /* Section Labels */
+  .section-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  
+  .section-title {
+    margin-bottom: 1rem;
+  }
+
+  /* Intro Grid (About Us with Truck) */
+  .intro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  
+  .intro-image img {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+  
+  @media (max-width: 768px) {
+    .intro-grid {
+      grid-template-columns: 1fr;
+    }
+    .intro-image {
+      order: -1;
+    }
+  }
+
+  /* Responsive Hero */
+  @media (max-width: 968px) {
+    .hero-grid {
+      grid-template-columns: 1fr !important;
+      gap: 2rem !important;
+      text-align: center;
+    }
+  }
+  
+  @media (max-width: 500px) {
+    .form-row-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+  
+  /* About Grid */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  
+  @media (max-width: 768px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .about-image img {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 100%;
+  }
+
+  /* Why Us Grid */
+  .why-us-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  
+  @media (max-width: 768px) {
+    .why-us-grid {
+      grid-template-columns: 1fr;
+    }
+    .why-us-image {
+      order: -1;
+    }
+  }
+  
+  .why-us-image img {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 100%;
+  }
+
+  /* Progress Bars */
+  .progress-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  .progress-item {
+    width: 100%;
+  }
+  
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  
+  .progress-label {
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .progress-value {
+    font-weight: 700;
+    color: var(--primary);
+  }
+  
+  .progress-track {
+    height: 10px;
+    background: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+    border-radius: 5px;
+    transition: width 1.2s ease-out;
+  }
+
+  /* Testimonials */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .testimonials-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .testimonial-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .testimonial-quote {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #444;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+  }
+  
+  .testimonial-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+  }
+  
+  .testimonial-name {
+    font-size: 1rem;
+    color: var(--primary);
+  }
+  
+  .testimonial-badge {
+    height: 35px;
+    width: auto;
+  }
+
+  /* FAQ Accordion - Clean Style */
+  .faq-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .faq-item {
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .faq-item:first-child {
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  .faq-question {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary);
+    transition: color 0.2s;
+  }
+  
+  .faq-question:hover {
+    color: var(--accent);
+  }
+  
+  .faq-icon {
+    font-size: 1.75rem;
+    font-weight: 300;
+    color: var(--accent);
+    transition: transform 0.3s;
+    line-height: 1;
+  }
+  
+  .faq-item.active .faq-icon {
+    transform: rotate(45deg);
+  }
+  
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+  }
+  
+  .faq-item.active .faq-answer {
+    max-height: 500px;
+  }
+  
+  .faq-answer p {
+    color: #555;
+    line-height: 1.8;
+    padding-bottom: 1.25rem;
+  }
+</style>
+
+<script>
+  // FAQ Accordion functionality
+  document.querySelectorAll('[data-faq-btn]').forEach(button => {
+    button.addEventListener('click', () => {
+      const faqItem = button.parentElement;
+      const isActive = faqItem.classList.contains('active');
+      
+      // Close all other items
+      document.querySelectorAll('.faq-item').forEach(item => {
+        item.classList.remove('active');
+        item.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+      });
+      
+      // Toggle current item
+      if (!isActive) {
+        faqItem.classList.add('active');
+        button.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // Progress bar animation on scroll
+  const animateProgressBars = () => {
+    document.querySelectorAll('.progress-fill').forEach(bar => {
+      const width = bar.getAttribute('data-width');
+      bar.style.width = width + '%';
+    });
+  };
+
+  // Run on load and scroll
+  const progressSection = document.querySelector('.progress-bars');
+  if (progressSection) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateProgressBars();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    
+    observer.observe(progressSection);
+  }
+</script>

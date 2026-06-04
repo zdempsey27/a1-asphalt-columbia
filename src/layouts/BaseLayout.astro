@@ -1,0 +1,729 @@
+---
+import { siteConfig } from '../config.js';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = siteConfig.seo.defaultTitle,
+  description = siteConfig.seo.defaultDescription 
+} = Astro.props;
+
+const { businessName, siteUrl, phone, services, serviceAreas, location, colors, footerAbout, businessHours, images } = siteConfig;
+
+// Self-referencing canonical URL for the current page
+const canonicalURL = new URL(Astro.url.pathname, siteUrl).href;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content={description}>
+  <title>{title}</title>
+  <link rel="canonical" href={canonicalURL} />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- LocalBusiness Schema Markup -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "GeneralContractor",
+    "@id": siteUrl,
+    "name": businessName,
+    "description": description,
+    "url": siteUrl,
+    "telephone": phone.display,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": location.city,
+      "addressRegion": location.stateAbbr,
+      "addressCountry": "US"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": location.geo.lat,
+      "longitude": location.geo.lng
+    },
+    "areaServed": serviceAreas.map(area => ({
+      "@type": "City",
+      "name": area.name + ", " + location.stateAbbr
+    })),
+    "serviceType": services.map(s => s.name),
+    "priceRange": "$$",
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "07:00",
+        "closes": "17:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Saturday"],
+        "opens": "08:00",
+        "closes": "14:00"
+      }
+    ]
+  })} />
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="header">
+    <!-- Top Bar: Logo + Contact Info -->
+    <div class="header-top">
+      <div class="header-top-container">
+        <a href="/" class="logo">
+          <img src={images.logo} alt={businessName} class="logo-img" />
+        </a>
+        
+        <div class="header-contact">
+          <div class="header-contact-item">
+            <a href={phone.tel} class="header-phone">{phone.display}</a>
+            <span class="header-contact-label">Call Us Today</span>
+          </div>
+          <div class="header-contact-divider"></div>
+          <div class="header-contact-item">
+            <span class="header-satisfaction">100% Satisfaction</span>
+            <span class="header-contact-label">Guaranteed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bottom Bar: Navigation -->
+    <nav class="header-nav">
+      <div class="header-nav-container">
+        <a href="/">Home</a>
+        
+        <div class="dropdown">
+          <a href="/services">Services</a>
+          <div class="dropdown-content">
+            {services.map(service => (
+              <a href={`/services/${service.slug}`}>{service.name}</a>
+            ))}
+          </div>
+        </div>
+        
+        <div class="dropdown">
+          <a href="/service-areas">Service Areas</a>
+          <div class="dropdown-content">
+            {serviceAreas.map(area => (
+              <a href={`/service-areas/${area.slug}`}>{area.name}</a>
+            ))}
+          </div>
+        </div>
+        
+        <a href="/about">About Us</a>
+        <a href="/contact">Contact Us</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <slot />
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h3>About Us</h3>
+        <p>{footerAbout}</p>
+      </div>
+      
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/service-areas">Service Areas</a></li>
+          <li><a href="/about">About Us</a></li>
+          <li><a href="/contact">Contact Us</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h3>Contact Info</h3>
+        <p><strong>{businessName}</strong></p>
+        <p>{location.city}, {location.stateAbbr}</p>
+        <p><a href={phone.tel}>{phone.display}</a></p>
+        <p style="margin-top: 0.75rem;"><strong>Hours:</strong><br>{businessHours}</p>
+        <div class="footer-logo">
+          <a href="/">
+            <img src={images.logo} alt={businessName} />
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; {new Date().getFullYear()} {businessName}. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
+
+<style define:vars={{ 
+  primary: colors.primary, 
+  primaryDark: colors.primaryDark,
+  secondary: colors.secondary, 
+  accent: colors.accent, 
+  dark: colors.dark, 
+  light: colors.light,
+  white: colors.white,
+  gray: colors.gray
+}}>
+  /* CSS RESET & BASE */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    color: var(--dark);
+    background: var(--white);
+  }
+  
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* HEADER */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  /* Top Bar - Dark with logo and contact */
+  .header-top {
+    background: var(--primary);
+    padding: 0.75rem 0;
+  }
+  
+  .header-top-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo-img {
+    height: 60px;
+    width: auto;
+    border-radius: 4px;
+  }
+  
+  .header-contact {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  
+  .header-contact-divider {
+    width: 1px;
+    height: 40px;
+    background: rgba(255,255,255,0.2);
+  }
+  
+  .header-contact-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-phone {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  
+  .header-phone:hover {
+    color: var(--accent);
+  }
+  
+  .header-satisfaction {
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .header-contact-label {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  /* Navigation Bar - Slightly lighter dark */
+  .header-nav {
+    background: var(--primaryDark);
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .header-nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+  }
+  
+  .header-nav-container > a,
+  .header-nav-container > .dropdown {
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .header-nav-container > a,
+  .header-nav-container > .dropdown > a {
+    display: block;
+    padding: 1rem 1.5rem;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  
+  .header-nav-container > a:hover,
+  .header-nav-container > .dropdown:hover > a {
+    background: rgba(255,255,255,0.1);
+    color: var(--accent);
+  }
+  
+  .dropdown {
+    position: relative;
+  }
+  
+  .dropdown-content {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--white);
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 0 0 4px 4px;
+    overflow: hidden;
+    transform: translateY(-10px);
+    transition: all 0.25s ease;
+    z-index: 100;
+  }
+  
+  .dropdown:hover .dropdown-content {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .dropdown-content a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--dark);
+    transition: background 0.2s;
+  }
+  
+  .dropdown-content a:hover {
+    background: var(--light);
+  }
+  
+  /* FOOTER */
+  .footer {
+    background: var(--secondary);
+    color: var(--white);
+    padding: 3rem 0 1rem;
+    margin-top: 4rem;
+  }
+  
+  .footer-logo {
+    margin-top: 1rem;
+  }
+  
+  .footer-logo img {
+    height: 100px;
+    width: auto;
+  }
+  
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+  
+  .footer-section h3 {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+  
+  .footer-section ul {
+    list-style: none;
+  }
+  
+  .footer-section li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .footer-section a:hover {
+    text-decoration: underline;
+  }
+  
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 2rem auto 0;
+    padding: 1rem 1.5rem 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.7;
+  }
+  
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .header-top-container {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.75rem;
+    }
+    
+    .header-contact {
+      flex-direction: row;
+      gap: 1rem;
+    }
+    
+    .header-contact-divider {
+      height: 30px;
+    }
+    
+    .header-contact-item {
+      align-items: center;
+      text-align: center;
+    }
+    
+    .header-nav-container {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .header-nav-container > a,
+    .header-nav-container > .dropdown > a {
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .logo-img {
+      height: 50px;
+    }
+  }
+</style>
+
+<style is:global define:vars={{ 
+  primary: colors.primary, 
+  primaryDark: colors.primaryDark,
+  secondary: colors.secondary
+}}>
+  /* GLOBAL UTILITY CLASSES - Now using CSS variables */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  
+  .section {
+    padding: 4rem 0;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+  }
+  
+  .btn {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .btn:hover {
+    background: var(--primaryDark);
+    transform: translateY(-2px);
+  }
+  
+  .btn-secondary {
+    background: white;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+  }
+  
+  .btn-secondary:hover {
+    background: var(--secondary);
+    color: white;
+  }
+  
+  /* HERO SECTION */
+  .hero {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    padding: 5rem 0;
+    text-align: center;
+  }
+  
+  .hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .hero p {
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    opacity: 0.9;
+  }
+  
+  .hero-phone {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .hero-phone a {
+    color: white;
+  }
+  
+  /* CARD GRID */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+  
+  .card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  }
+  
+  .card h3 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+  }
+  
+  /* CONTENT SECTIONS */
+  .content-section {
+    padding: 4rem 0;
+  }
+  
+  .content-section:nth-child(even) {
+    background: #f5f5f5;
+  }
+  
+  .content-section h2 {
+    font-size: 2rem;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+  }
+  
+  .content-section p {
+    margin-bottom: 1rem;
+    line-height: 1.8;
+  }
+
+  /* CTA SECTION */
+  .cta-section {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    padding: 4rem 0;
+    text-align: center;
+  }
+  
+  .cta-section h2 {
+    margin-bottom: 1rem;
+    color: white;
+  }
+  
+  .cta-section p {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    opacity: 0.9;
+  }
+  
+  .cta-section .btn {
+    background: white;
+    color: var(--primary);
+  }
+  
+  .cta-section .btn:hover {
+    background: #f5f5f5;
+  }
+
+  /* FORM STYLES */
+  .form-wrapper {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  .form-wrapper h3 {
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+  }
+  
+  .lead-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .lead-form input,
+  .lead-form select,
+  .lead-form textarea {
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+  
+  .lead-form input:focus,
+  .lead-form select:focus,
+  .lead-form textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  /* GALLERY GRID */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .gallery-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  .gallery-grid img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s;
+  }
+  
+  .gallery-grid img:hover {
+    transform: scale(1.03);
+  }
+
+  /* PROCESS STEPS */
+  .process-steps {
+    margin-top: 1rem;
+  }
+  
+  .process-step {
+    background: white;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  
+  .process-step h3 {
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+  }
+
+  /* SERVICES GRID */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .service-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    border-bottom: 3px solid var(--secondary);
+  }
+  
+  .service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+  
+  .service-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+  }
+  
+  .service-card-content {
+    padding: 1.25rem;
+  }
+  
+  .service-card-content h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+  
+  .service-card-content p {
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    color: #555;
+    font-size: 0.9rem;
+  }
+</style>

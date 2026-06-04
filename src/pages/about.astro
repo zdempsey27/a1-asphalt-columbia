@@ -1,0 +1,398 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../config.js';
+import { aboutContent } from '../content/about.js';
+import { processContent } from '../utils/content.js';
+
+const content = processContent(aboutContent);
+const { businessName, phone, location, niche, testimonials, stats, colors, images } = siteConfig;
+const { city, stateAbbr, region } = location;
+const overlayColor = colors.overlay;
+---
+
+<BaseLayout 
+  title={`About ${businessName} | ${niche} Contractor in ${city}, ${stateAbbr}`}
+  description={`Learn about ${businessName}, your trusted ${niche.toLowerCase()} contractor in ${city}, ${stateAbbr}. Quality craftsmanship, exceptional service.`}
+>
+
+  <!-- HERO SECTION -->
+  <section class="about-hero" style={`
+    background-image: linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%), url('${images.backgrounds.wood}');
+    background-size: cover;
+    background-position: center;
+    padding: 5rem 2rem;
+    color: white;
+    text-align: center;
+  `}>
+    <div class="container">
+      <span class="section-label" style="color: var(--accent);">ABOUT US</span>
+      <h1 style="font-size: 2.75rem; margin-bottom: 1rem;">{content.hero.heading}</h1>
+      <p style="font-size: 1.2rem; opacity: 0.9; max-width: 700px; margin: 0 auto;">{content.hero.subtitle}</p>
+    </div>
+  </section>
+
+  <!-- INTRO SECTION - Truck + Text -->
+  <section class="section">
+    <div class="container">
+      <div class="about-intro-grid">
+        <div class="about-intro-image">
+          {images.brandedTruck && <img src={images.brandedTruck} alt={`${businessName} Work Truck`}>}
+        </div>
+        <div class="about-intro-content">
+          <span class="section-label">OUR STORY</span>
+          <h2>{content.main.heading}</h2>
+          {content.main.paragraphs.map(para => (
+            <p set:html={para} style="line-height: 1.8; margin-bottom: 1rem; color: #444;"></p>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CORE VALUES SECTION -->
+  <section class="section" style="background: #f8f8f8;">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <span class="section-label">OUR VALUES</span>
+        <h2 class="section-title">{content.coreValues.heading}</h2>
+      </div>
+      
+      <div class="values-grid">
+        {content.coreValues.values.map((value, index) => (
+          <div class="value-card">
+            <div class="value-number">{String(index + 1).padStart(2, '0')}</div>
+            <h3>{value.heading}</h3>
+            <p>{value.content}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY TRUST US - Progress Bars -->
+  <section class="section" style={`
+    background-image: linear-gradient(rgba(${overlayColor}, 0.92), rgba(${overlayColor}, 0.92)), url('${images.backgrounds.chainLink}');
+    background-size: cover;
+    background-position: center;
+    color: white;
+  `}>
+    <div class="container">
+      <div class="trust-grid">
+        <div class="trust-content">
+          <span class="section-label" style="color: var(--accent);">WHY TRUST US</span>
+          <h2 style="color: white;">{content.whyTrustUs.heading}</h2>
+          
+          <!-- Progress Bars -->
+          <div class="progress-bars">
+            {stats.map(stat => (
+              <div class="progress-item">
+                <div class="progress-header">
+                  <span class="progress-label" style="color: white;">{stat.label}</span>
+                  <span class="progress-value" style="color: var(--accent);">{stat.value}%</span>
+                </div>
+                <div class="progress-track" style="background: rgba(255,255,255,0.2);">
+                  <div class="progress-fill" data-width={stat.value}></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <a href={phone.tel} class="btn" style="background: #FFD700; color: #1a1a1a; margin-top: 1.5rem;">Call Us Today</a>
+        </div>
+        <div class="trust-cards">
+          {content.whyTrustUs.values.map(value => (
+            <div class="trust-card">
+              <h4>{value.title}</h4>
+              <p>{value.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST BADGES -->
+  <section class="section">
+    <div class="container" style="text-align: center;">
+      <span class="section-label">CREDENTIALS</span>
+      <h2 class="section-title">Licensed, Insured & Award-Winning</h2>
+      <p style="max-width: 600px; margin: 0 auto 2rem; color: #555;">We're proud to be a trusted fencing contractor in the {region}, committed to quality and customer satisfaction on every project.</p>
+      
+      <div class="badges-row">
+        {images.badges.licensed && <img src={images.badges.licensed} alt="Licensed & Insured" style="height: 80px; width: auto;">}
+        {images.badges.award && <img src={images.badges.award} alt="Award Winning" style="height: 90px; width: auto;">}
+        {images.badges.fiveStars && <img src={images.badges.fiveStars} alt="5 Star Rated" style="height: 50px; width: auto;">}
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS SECTION -->
+  <section class="section" style="background: #f8f8f8;">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <span class="section-label">TESTIMONIALS</span>
+        <h2 class="section-title">What Our Clients Say</h2>
+      </div>
+      
+      <div class="testimonials-grid">
+        {testimonials.slice(0, 4).map(testimonial => (
+          <div class="testimonial-card">
+            <p class="testimonial-quote">{testimonial.quote}</p>
+            <div class="testimonial-footer">
+              <strong class="testimonial-name">{testimonial.name}</strong>
+              {images.badges.fiveStars && <img src={images.badges.fiveStars} alt="5 Star Rating" class="testimonial-badge">}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  <section class="cta-section" style={`
+    background-image: linear-gradient(rgba(${overlayColor}, 0.9), rgba(${overlayColor}, 0.9)), url('${images.backgrounds.vinyl}');
+    background-size: cover;
+    background-position: center;
+  `}>
+    <div class="container" style="text-align: center;">
+      <h2>{content.cta.heading}</h2>
+      <p style="max-width: 600px; margin: 0 auto 1.5rem;">{content.cta.content}</p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href={phone.tel} class="btn" style="background: #FFD700; color: #1a1a1a;">Call {phone.display}</a>
+        <a href="/contact" class="btn" style="background: transparent; border: 2px solid white;">Get Free Estimate</a>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  /* Section Label */
+  .section-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  /* Intro Grid */
+  .about-intro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  
+  .about-intro-image img {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+  
+  @media (max-width: 768px) {
+    .about-intro-grid {
+      grid-template-columns: 1fr;
+    }
+    .about-intro-image {
+      order: -1;
+    }
+  }
+
+  /* Values Grid */
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .value-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    position: relative;
+  }
+  
+  .value-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    opacity: 0.3;
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+  }
+  
+  .value-card h3 {
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+    font-size: 1.15rem;
+  }
+  
+  .value-card p {
+    color: #555;
+    line-height: 1.7;
+    font-size: 0.95rem;
+  }
+
+  /* Trust Grid */
+  .trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  
+  @media (max-width: 768px) {
+    .trust-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .trust-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  @media (max-width: 500px) {
+    .trust-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .trust-card {
+    background: rgba(255,255,255,0.1);
+    padding: 1.25rem;
+    border-radius: 8px;
+    backdrop-filter: blur(4px);
+  }
+  
+  .trust-card h4 {
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .trust-card p {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  /* Progress Bars */
+  .progress-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+  
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  
+  .progress-label {
+    font-weight: 600;
+  }
+  
+  .progress-value {
+    font-weight: 700;
+  }
+  
+  .progress-track {
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--accent) 0%, #FFD700 100%);
+    border-radius: 5px;
+    transition: width 1.2s ease-out;
+  }
+
+  /* Badges Row */
+  .badges-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+  }
+
+  /* Testimonials */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .testimonials-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .testimonial-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+  
+  .testimonial-quote {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #444;
+    margin-bottom: 1.5rem;
+  }
+  
+  .testimonial-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+  }
+  
+  .testimonial-name {
+    color: var(--primary);
+  }
+  
+  .testimonial-badge {
+    height: 35px;
+    width: auto;
+  }
+</style>
+
+<script>
+  // Progress bar animation on scroll
+  const animateProgressBars = () => {
+    document.querySelectorAll('.progress-fill').forEach(bar => {
+      const width = bar.getAttribute('data-width');
+      bar.style.width = width + '%';
+    });
+  };
+
+  const progressSection = document.querySelector('.progress-bars');
+  if (progressSection) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateProgressBars();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    
+    observer.observe(progressSection);
+  }
+</script>

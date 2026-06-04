@@ -1,0 +1,8 @@
+# Robots.txt for A1 Asphalt Columbia
+# https://a1asphaltcolumbia.com
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://a1asphaltcolumbia.com/sitemap-index.xml

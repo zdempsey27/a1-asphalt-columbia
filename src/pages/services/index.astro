@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { siteConfig } from '../../config.js';
+
+const { businessName, phone, location, services, images, colors } = siteConfig;
+const { city, stateAbbr } = location;
+
+const title = `${siteConfig.niche} Services in ${city}, ${stateAbbr} | ${businessName}`;
+const description = `Professional ${siteConfig.nicheLC} services in ${city}, ${stateAbbr}. Call ${phone.display} for a free estimate.`;
+
+const overlayColor = colors.overlay;
+const accentColor = colors.accent;
+
+// Load service content files to get shortDesc
+const contentModules = import.meta.glob('../../content/services/*.js', { eager: true });
+function getServiceShortDesc(slug) {
+  const path = `../../content/services/${slug}.js`;
+  if (contentModules[path]) {
+    const mod = contentModules[path];
+    const content = mod.default || Object.values(mod)[0];
+    return content.shortDesc || null;
+  }
+  return null;
+}
+---
+
+<BaseLayout title={title} description={description}>
+  <!-- HERO SECTION -->
+  <section class="hero-section" style={`
+    background-image: linear-gradient(rgba(${overlayColor}, 0.9), rgba(${overlayColor}, 0.9)), url('${images.backgrounds.installer}');
+    background-size: cover;
+    background-position: center;
+  `}>
+    <div class="container">
+      <span class="hero-label" style={`color: ${accentColor};`}>WHAT WE DO</span>
+      <h1>{`Our ${siteConfig.niche} Services`}</h1>
+      <p>{`Professional ${siteConfig.niche} services for residential and commercial properties in ${city} and surrounding areas.`}</p>
+    </div>
+  </section>
+
+  <!-- SERVICES GRID -->
+  <section class="section">
+    <div class="container">
+      <div class="services-index-grid">
+        {services.map(service => {
+          const cardImage = images.serviceCards[service.slug];
+          const shortDesc = getServiceShortDesc(service.slug) || `Professional ${service.name.toLowerCase()} services in ${city}, ${stateAbbr}.`;
+          return (
+            <a href={`/services/${service.slug}`} class="service-index-card">
+              <div class="service-index-image">
+                <img src={cardImage} alt={`${service.name} in ${city}, ${stateAbbr}`} />
+              </div>
+              <div class="service-index-content">
+                <h2>{service.name}</h2>
+                <p>{shortDesc}</p>
+                <span class="service-link">Learn More →</span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  <section class="section cta-section">
+    <div class="container" style="text-align: center;">
+      <h2>Ready to Get Started?</h2>
+      <p>{`Contact us today for a free estimate on your ${siteConfig.nicheLC} project.`}</p>
+      <a href={phone.tel} class="btn" style="background: white; color: var(--primary); margin-top: 1rem;">
+        Call Now: {phone.display}
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero-section {
+    padding: 4rem 0;
+    color: white;
+    text-align: center;
+  }
+
+  .hero-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-section p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .services-index-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+  }
+
+  .service-index-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 3px solid var(--secondary);
+  }
+
+  .service-index-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  }
+
+  .service-index-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+
+  .service-index-content {
+    padding: 1.5rem;
+  }
+
+  .service-index-content h2 {
+    font-size: 1.3rem;
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+  }
+
+  .service-index-content p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .service-link {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .service-index-card:hover .service-link {
+    color: var(--accent);
+  }
+
+  @media (max-width: 768px) {
+    .hero-section h1 {
+      font-size: 2rem;
+    }
+
+    .services-index-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
